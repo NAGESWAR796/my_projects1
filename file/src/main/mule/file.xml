@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1b13909f-5d3e-4af2-8bfc-56b8b8e1d5ab" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="0a6ac4fd-4613-4ce6-b3e3-033b0ff2c94a" />
+	<file:config name="File_Config1" doc:name="File Config" doc:id="4dc41b32-5cee-4f7f-b164-ae979e0d9930" />
+	<file:config name="File_Config2" doc:name="File Config" doc:id="b50a03a0-12f8-41b9-ab94-8461def6def5" />
+	<flow name="fileFlow" doc:id="879ada40-2155-4a5f-aab6-1d75d6138309" >
+		<http:listener doc:name="Listener" doc:id="157419e4-f50a-47be-94c4-442d4ef939ff" config-ref="HTTP_Listener_config" path="/file_list"/>
+		<logger level="INFO" doc:name="Logger" doc:id="bedec3b4-4928-4baa-976b-1e660d80970f" message="wellcome to listing operation"/>
+		<file:list doc:name="List" doc:id="f78528b2-d492-4461-a85c-12b71394f13d" config-ref="File_Config2" directoryPath="C:\Users\HANNAH\Desktop\fileconnector\file\INPUT\3">
+			<file:matcher filenamePattern="*.*json" />
+		</file:list>
+		<ee:transform doc:name="Transform Message" doc:id="133768e7-675c-471d-a6aa-e52b20fe5794">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+employees:
+{
+	employee : payload
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bf0f00e6-0e40-4326-a513-fd7fba2d44dc" message=" #[payload]"/>
+	</flow>
+</mule>

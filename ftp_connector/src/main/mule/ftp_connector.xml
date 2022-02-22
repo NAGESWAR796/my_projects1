@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="87b17cf3-4040-476a-8966-31c344cc83e0" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<ftp:config name="FTP_Config1" doc:name="FTP Config" doc:id="4272f6e7-2203-40c9-a267-5cd183c521e5" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<ftp:config name="FTP_Config2" doc:name="FTP Config" doc:id="e1a71186-c9ad-4906-ae1f-5528e4161c0c" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<flow name="ftp_connectorFlow" doc:id="5a631375-1079-479f-b04c-3f9687930e10" >
+		<ftp:listener doc:name="On New or Updated File" doc:id="0763d3a8-d9bd-4ab1-96a3-b587db66143d" config-ref="FTP_Config1" directory="INBOUND\FTP" timeBetweenSizeCheckUnit="MILLISECONDS" autoDelete="true" moveToDirectory="OUTBOUND\FTP">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</ftp:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="d9f98dd1-0628-4d45-b8a9-0d89bdc679a9" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="30fd5f2b-7dfd-499b-9e0e-0935100a850a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+customers:
+{
+	emp_name:payload.emp.firstname ++" "++ payload.emp.lastname,
+	emp_dob:payload.emp.dob,
+	emp_status:payload.emp.satus
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3bc8ad41-bb21-47bc-84ee-4f0ea2d321d2" message="#[payload]"/>
+		<ftp:write doc:name="Write" doc:id="71460504-077b-46e3-93b7-39cc4ee74b25" config-ref="FTP_Config2" path="OUTBOUND\FTP\emp_json.json"/>
+	</flow>
+</mule>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="input" format="xml">
+      <types:example format="xml" element="note" location="examples/sample.xml"/>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#0c93e9fd-45a9-41b6-95fe-8e5599f30bb0">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="input"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

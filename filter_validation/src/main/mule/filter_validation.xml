@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3c1e4308-0990-40c8-ae43-d9a99c6da86d" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="IP_validation" doc:id="6d83b282-fbd6-48ed-aef7-953a88ac321a" >
+		<http:listener doc:name="Listener" doc:id="715a80eb-c64e-4d65-b383-df795593251d" config-ref="HTTP_Listener_config" path="/ipvalidation"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="89c75d47-e8c8-4f11-9d70-8efb61452030" />
+		<logger level="INFO" doc:name="Logger" doc:id="94420bd9-d21b-46ec-9c33-6c3e30db2ddd" message='#["message has received and going to validate IP address "]'/>
+		<validation:is-ip doc:name="Is IP" doc:id="75d35be2-db50-4ea4-ba73-42305f9a8d7e" ip="#[payload.customer_ip]" message="Received IP address is not vallied"/>
+		<set-payload value='#[payload.customer_ip ++ " is valid sucessfully"]' doc:name="Set Payload" doc:id="ebf29002-3cf1-4730-a3ad-c9736a0e9364" />
+		<logger level="INFO" doc:name="Logger" doc:id="408985f5-6a5f-4ad0-ac80-b1db35f3f419" message='"Recived IP address is valid sucessfully, please continue process "'/>
+		<set-variable value="#[attributes.queryParams.int1]" doc:name="V1" doc:id="1a76d1eb-b894-4b37-8d42-f32d7fd54645" variableName="a"/>
+		<set-variable value="#[attributes.queryParams.int2]" doc:name="V2" doc:id="2e07edbc-4a81-451d-b088-d29327a4012b" variableName="b"/>
+		<set-variable value='#[(vars.a default"") +( vars.b default"")]' doc:name="v3=add" doc:id="cf6278b1-3032-48ec-bc9d-d08ebf4f7956" variableName="c"/>
+		<ee:transform doc:name="Transform Message" doc:id="bc16a9c0-03ae-49c9-88a7-f22bd5fa3ce6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"addition": (vars.a default "") +( vars.b default""),
+	"subtraction": vars.c-vars.b,
+	"matching":vars.a == vars.b,
+	"multiplation":(vars.a default"")*(vars.c default"")
+	
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"addition": (vars.a default"") +( vars.b default " "),&#10;	"subtraction": vars.c-vars.b,&#10;	"matching":vars.a == vars.b,&#10;	"multiplation":(vars.a default " ")*(vars.c default " ")&#10;	&#10;	}]' doc:name="Set Payload" doc:id="0ad7b2de-9f37-43f0-ba9b-f5799f631411" />
+		<logger level="INFO" doc:name="Logger" doc:id="7bd040c5-dc34-4f73-8974-5e26499a60d3" message="#[payload]"/>
+	</flow>
+	<flow name="URL_validation" doc:id="c1fe05d5-8096-4920-b423-c43b92d02571" >
+		<http:listener doc:name="Listener" doc:id="c5b78b7a-caea-4f24-b50a-023730e832e3" config-ref="HTTP_Listener_config" path="/urlvalidation"/>
+		<set-payload value="#[payload]" doc:name="Set Payload1" doc:id="09f9ff85-38f6-403b-93f3-71fb12f3b02b" />
+		<logger level="INFO" doc:name="Logger" doc:id="636a7352-c571-4f8c-97ed-b70a028e3c2c" message='#["message is recived and going to validate URL"]'/>
+		<validation:is-url doc:name="Is URL" doc:id="8fe4cd0b-e1b9-47fa-8fdb-058130fea98e" url="#[payload.URL]" message="Received url is  invaliid"/>
+		<set-payload value='#[payload.URL ++ " is a valid URL "]' doc:name="Set Payload2" doc:id="9163cd87-0179-41a7-ab57-7567df4cadd1" />
+		<logger level="INFO" doc:name="Logger" doc:id="d63f0b45-26b8-4dd2-b65a-22850dda2e70" message="Received URL is valid sucessfully, please continue processes #[payload]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="93118f66-0232-48c5-86c9-80c15431a484" name="concatenation"/>
+	</flow>
+	<sub-flow name="concatenation" doc:id="12eca917-5839-4d82-8659-7240635fe48f" >
+		<set-variable value="#[attributes.queryParams.str1]" doc:name="V1" doc:id="fc835c0c-e099-4137-8365-38d1003289f1" variableName="a"/>
+		<set-variable value="#[attributes.queryParams.str2]" doc:name="V2" doc:id="6ca88ea0-0b93-4b75-bc20-84a0801bf8d9" variableName="b"/>
+		<set-variable value='#[(vars.a default " ")++" "++ (vars.b default " ")]' doc:name="concatenation" doc:id="e31f1974-1208-46b2-949d-dbf5ed03f3fb" variableName="c"/>
+		<ee:transform doc:name="Transform Message" doc:id="2e85434b-d2ce-4e8a-9985-aac6fdc1c900" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Received message ":payload,
+	"concatenation":(vars.a default " ")++" "++ (vars.b default " "),
+	"result is ":vars.c	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d2c2aaeb-d884-431d-9368-58f7d44ed596" message="processes had completed"/>
+	</sub-flow>
+	<flow name="Email_validation" doc:id="a9011cab-9feb-4394-8232-b6de2644f10a" >
+		<http:listener doc:name="Listener" doc:id="09359eca-2807-4d40-998c-2eba1428ac86" config-ref="HTTP_Listener_config" path="/emailvalidation"/>
+		<set-payload value="#[payload]" doc:name="Set Payload1" doc:id="8b59ea19-c7cc-49e5-a7a4-3df13f360f3b" />
+		<logger level="INFO" doc:name="Logger" doc:id="2d69241d-c310-4cb6-86a7-e369ee2304d3" message="Message was received and going to email validation."/>
+		<validation:is-email doc:name="Is email" doc:id="112e87ce-64b8-41d7-994b-436d28e15078" email="#[payload.customer_email]" message="Customer email ID is not valid going to stop the process."/>
+		<set-payload value='#[payload.customer_email ++ " is valied and please continue process"]' doc:name="Set Payload2" doc:id="962c03a3-3c94-4718-88e9-5b2e6b5bdb79" />
+		<logger level="INFO" doc:name="Logger" doc:id="690916b9-4487-4cdf-b5f5-4f89f7a7aa19" message='#[payload ++ " please continue process"]'/>
+		<flow-ref doc:name="Flow Reference" doc:id="8d761c51-58f5-4506-893c-d8b683cf7b52" name="Matching"/>
+	</flow>
+	<sub-flow name="Matching" doc:id="b56d729d-a308-4e2c-81d4-a3eb870c755c" >
+		<set-variable value="#[attributes.queryParams.str1]" doc:name="v1" doc:id="b2b43505-ada5-4599-b9eb-a4c848386988" variableName="a"/>
+		<set-variable value="#[attributes.queryParams.str2]" doc:name="v2" doc:id="555c4bca-c04b-488a-929e-a467dd6bd803" variableName="b"/>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	matching:&#10;	{&#10;	"matching":vars.a &gt; vars.b&#10;	},&#10;	addition:&#10;	{&#10;		"addition":(vars.a default " ")++" "++ (vars.b default " ")&#10;	}&#10;}]' doc:name="Set Payload3" doc:id="d4ecb00a-00c7-4418-b251-ff6761c3ec64" />
+		<logger level="INFO" doc:name="Logger" doc:id="945571d5-db2a-49dc-a5ad-866d5ff3f9cd" message="#[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="cb55256b-bf29-47a8-be48-6cfb6a6af12f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"sub": (vars.a default " ")-(vars.b default " ")
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="efedd46d-812d-4c10-92f4-d964f0aa9ce0" message="#[payload]"/>
+	</sub-flow>
+	<flow name="is_blankstring" doc:id="ef91834e-73b9-47c0-a74f-0d471bd59c1f" >
+		<http:listener doc:name="Listener" doc:id="b223a3a9-9dfb-493a-bd12-c147632a8362" config-ref="HTTP_Listener_config" path="/blankstring" allowedMethods="GET"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="abec9ffd-17d6-40cb-977a-8d8daaf140c2" />
+		<logger level="INFO" doc:name="Logger" doc:id="fd2acd80-030e-4f64-b221-150d3abc32ff" message="Going to validate received payload is blank string or not" />
+		<validation:is-blank-string doc:name="Is blank string" doc:id="608b2113-c64a-494c-8ce9-81bdb3fb2325" value="#[payload.customer_id]" message="Received payload is not empty it have some customer data." />
+		<set-payload value='#[payload.customer_id ++ " Received payload is blank string"]' doc:name="Set Payload" doc:id="f75fd170-cf6c-4892-a743-ef06329f85e1" />
+		<logger level="INFO" doc:name="Logger" doc:id="7ba070bf-8f4e-4ea9-b5ff-b75e3af5ec41" message='#[payload ++ " Received payload is a blank string"]'/>
+	</flow>
+</mule>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0053f59a-a1f2-4402-88ed-6a7f961c160d" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="b5cad69b-e4b5-411d-bb8b-219c33e76bde" />
+	<file:config name="File_Config1" doc:name="File Config" doc:id="74267538-8655-4963-8769-a9591f931056" />
+	<file:config name="File_Config2" doc:name="File Config" doc:id="d7da5b35-ad87-4863-9fef-c150a11e5bae" />
+	<file:config name="File_Config3" doc:name="File Config" doc:id="a376888a-8d12-4951-b67f-af58c2316020" />
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="c81531ba-219e-434d-9389-1045042a8327" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<ftp:config name="FTP_Config1" doc:name="FTP Config" doc:id="e98a41da-009d-4108-89d9-e076289b019e" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<ftp:config name="FTP_Config2" doc:name="FTP Config" doc:id="dadee9ae-89ff-4b69-a481-865ce21dbd51" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<ftp:config name="FTP_Config3" doc:name="FTP Config" doc:id="ca049151-83af-4859-851c-68b087de4381" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<flow name="renameFlow" doc:id="4a11c41c-c91e-4717-a430-efa4759b7a11" >
+		<http:listener doc:name="Listener" doc:id="4080dee7-1e6c-4501-9077-d422b4c017e3" config-ref="HTTP_Listener_config" path="/file_rename"/>
+		<ftp:list doc:name="List" doc:id="ce3afdd6-ea6b-415f-850d-c60b5b5c5937" config-ref="FTP_Config3" directoryPath="INBOUND\FTP">
+			<ftp:matcher filenamePattern="*.*json" />
+		</ftp:list>
+		<ee:transform doc:name="Transform Message" doc:id="b7afd0f5-7504-416f-a395-6912051637f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ftp:write doc:name="Write" doc:id="d8a911e7-ae09-4925-8c95-a1fc74a32935" config-ref="FTP_Config1" path="OUTBOUND\FTP\list.json"/>
+		<ftp:rename doc:name="Rename" doc:id="95073492-b484-4c3d-af1c-69163dcb29c5" config-ref="FTP_Config2" path="OUTBOUND\FTP\list.json" to="list_rename.json" overwrite="true"/>
+		<logger level="INFO" doc:name="Logger" doc:id="c8c41164-8538-4fbb-b085-34fc9069948c" message="#[payload]"/>
+	</flow>
+</mule>

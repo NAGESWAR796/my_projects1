@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="aa528ad2-e4b0-4b7e-92c6-27dcc4042f9c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="dadac49a-4ce6-4a91-a2d8-bde1d3c6a83a" />
+	<flow name="readfileFlow" doc:id="a3aeec24-54d4-4ced-992b-3650972ec2b4" >
+		<http:listener doc:name="Listener" doc:id="e7a3bcff-d1d6-42c7-be46-d5fb0dd5cecc" config-ref="HTTP_Listener_config" path="/readfile"/>
+		<file:read doc:name="Read" doc:id="28d0f6a7-d017-457a-8c33-a556d81ed9c2" config-ref="File_Config" path="C:\Users\HANNAH\Desktop\fileconnector\file\INPUT\empbackup.xml"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="80dc0ea1-c78e-430b-b5d7-9eda912542a9" />
+		<logger level="INFO" doc:name="Logger" doc:id="34341d6d-3774-4ffd-a05a-ecff29167d92" message='received payload is :  #[payload]'/>
+		<file:write doc:name="Write" doc:id="7500170f-1b08-48f6-9250-e9d3da9dbc57" config-ref="File_Config" path="C:\Users\HANNAH\Desktop\fileconnector\file\OUTPUT\write_xml.xml"/>
+	</flow>
+	<flow name="readfileFlow1" doc:id="efda608d-4956-49f5-89fb-3044ceb3f6f8" >
+		<file:listener doc:name="On New or Updated File" doc:id="0a5ab5cd-8bbe-4007-9581-ff06155e7a54" config-ref="File_Config" directory="C:\Users\HANNAH\Desktop\fileconnector\file\OUTPUT">
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS" />
+			</scheduling-strategy>
+		</file:listener>
+		<ee:transform doc:name="Transform Message" doc:id="d89019fa-379e-41ce-b79d-62f54f2cf67a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="2a1a5a00-4cdf-42d0-9b59-5e07f31db27a" path="C:\Users\HANNAH\Desktop\fileconnector\file\INPUT\write2.json"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ba5ff0ef-025b-4b60-86e6-fa1c09d38f0b" message='recived payload1:  #[payload]'/>
+	</flow>
+</mule>

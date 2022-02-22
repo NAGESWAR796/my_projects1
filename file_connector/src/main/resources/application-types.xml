@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="book" format="json">
+      <types:shape format="weave" example="examples/book.json"><![CDATA[%dw 2.0
+
+type book = {|
+  book: Array<{|    "book id": String,     language: String,     author: String,     edition: String  |}>
+|} {"example": "{\\\"book\\\":[{\\\"book id\\\":\\\"01\\\",\\\"language\\\":\\\"telugu\\\",\\\"author\\\":\\\"sri sri\\\",\\\"edition\\\":\\\"first edition\\\"},{\\\"book id\\\":\\\"02\\\",\\\"language\\\":\\\"english\\\",\\\"author\\\":\\\"shaiksphere\\\",\\\"edition\\\":\\\"second edition\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#66839d2a-80a8-4807-b8c2-f11206f60796">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="book"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

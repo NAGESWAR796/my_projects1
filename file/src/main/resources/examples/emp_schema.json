@@ -1,0 +1,25 @@
+{
+	"employees": [
+		{
+			"employee01": {
+				"firstname": "Jane",
+				"lastname": "Doe",
+				"title": "Engineer",
+				"division": "Materials",
+				"building": "327",
+				"room": "19",
+				"supervisor": "be131"
+			}
+		},
+		{
+			"employee02": {
+				"firstname": "William",
+				"lastname": "Defoe",
+				"title": "Accountant",
+				"division": "Accts Payable",
+				"building": "326",
+				"room": "14a"
+			}
+		}
+	]
+}

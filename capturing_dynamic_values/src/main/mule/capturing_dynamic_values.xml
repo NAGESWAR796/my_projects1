@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="aa0f2121-a528-4428-a20b-e74dd50e060f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="capturing_dynamic_valuesFlow" doc:id="a33c0375-6a88-49b8-ac9e-6750e482e3c2" >
+		<http:listener doc:name="Listener" doc:id="26393637-3d8c-4706-807e-9a4ac422493e" config-ref="HTTP_Listener_config" path="/dynamic" allowedMethods="POST"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="157d7688-a3de-4731-8db4-af3a1db2ba55" />
+		<set-variable value="#[attributes.queryParams.str1]" doc:name="V1" doc:id="6d791ca0-3d4a-4f52-9fb6-8b3b62a552f8" variableName="A"/>
+		<set-variable value="#[attributes.queryParams.str2]" doc:name="V2" doc:id="ce23eaeb-f53c-4a37-9ac0-380761c3a8dc" variableName="B"/>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"ID": vars.A,&#10;	"passcode":vars.B&#10;}]' doc:name="Set Payload" doc:id="09c7c012-ffd0-4b6b-9fc1-68a4a42eb41e" />
+		<logger level="INFO" doc:name="Logger" doc:id="68c4a93e-f82f-490d-aab6-23256c5ae7d5" message="#[payload]"/>
+	</flow>
+</mule>

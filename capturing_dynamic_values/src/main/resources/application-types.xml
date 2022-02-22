@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="dynmaic" format="json">
+      <types:shape format="weave" example="examples/billing_adress02-1.json"><![CDATA[%dw 2.0
+
+type dynmaic = {|
+  name: String, 
+  price: Number {"typeId": "int"}, 
+  shipTo: {|
+    name: String, 
+    address: String, 
+    city: String, 
+    state: String, 
+    PIN: String
+  |}, 
+  billTo: {|
+    name: String, 
+    address: String, 
+    city: String, 
+    state: String, 
+    PIN: String
+  |}
+|} {"example": "{\\\"name\\\":\\\"nageswar\\\",\\\"price\\\":200,\\\"shipTo\\\":{\\\"name\\\":\\\"karumuri chanti\\\",\\\"address\\\":\\\"chebrolu Street 9\\\",\\\"city\\\":\\\"guntur\\\",\\\"state\\\":\\\"AP\\\",\\\"PIN\\\":\\\"522212\\\"},\\\"billTo\\\":{\\\"name\\\":\\\"karumuri chanti\\\",\\\"address\\\":\\\"chebrolu street 9\\\",\\\"city\\\":\\\"guntur\\\",\\\"state\\\":\\\"AP\\\",\\\"PIN\\\":\\\"522212\\\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+</types:mule>

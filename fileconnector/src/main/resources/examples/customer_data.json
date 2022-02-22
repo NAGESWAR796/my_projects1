@@ -1,0 +1,25 @@
+{
+	"customer":[
+	{
+		"customer no":1,
+		"mobile no":8977442467,
+		"adress":{
+			"door no":1246,
+			"street":"chebrolu",
+			"city":"chebrolu"
+		}	
+	},
+	{
+		"customer no":1,
+		"mobile no":8977442467,
+		"adress":{
+			"door no":1246,
+			"street":"chebrolu",
+			"city":"chebrolu"
+		}
+	}
+		
+	
+	
+	]
+}

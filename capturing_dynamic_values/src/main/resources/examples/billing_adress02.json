@@ -1,0 +1,15 @@
+{ 
+"name"   : "nageswar",
+  "price"  : 200,
+  
+  "shipTo" : { "name" : "karumuri chanti",
+               "address" : "chebrolu Street 9",
+               "city" : "guntur",
+               "state" : "AP",
+               "PIN"   : "522212" },
+  "billTo" : { "name" : "karumuri chanti",
+               "address" : "chebrolu street 9",
+               "city" : "guntur",
+               "state" : "AP",
+               "PIN"   : "522212" }
+}

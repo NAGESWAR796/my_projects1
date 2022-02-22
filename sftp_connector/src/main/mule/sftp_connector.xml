@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="368a84a4-e8fd-4e4d-b8f6-dffaafacdada" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="3cf66217-76b9-452c-989e-5fb0f9607fc9" >
+		<sftp:connection host="192.168.0.5" port="2222" username="mule_SFTP" password="soft@123" />
+	</sftp:config>
+	<sftp:config name="SFTP_Config1" doc:name="SFTP Config" doc:id="38120990-a897-48e8-9b3c-1cb6a2d997e5" >
+		<sftp:connection host="192.168.0.5" port="2222" username="mule_SFTP" password="soft@123" />
+	</sftp:config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="188aae4b-f637-48cc-8117-76d1eef6b6f5" >
+		<ftp:connection host="192.168.0.5" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<flow name="sftp_connectorFlow" doc:id="672c8a78-c049-4e9f-827a-e3a046764f2d" >
+		<http:listener doc:name="Listener" doc:id="8559b3d2-d508-43be-808a-1854862f7d1f" config-ref="HTTP_Listener_config" path="/sftp"/>
+		<sftp:read doc:name="Read" doc:id="af8f13bd-36f8-4ac4-9d1a-31476ad3cff4" config-ref="SFTP_Config" path="INBOUND\emp.xml"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e4c32222-fe8b-4547-8e46-f66c5196bfe8" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="839f26c4-6ad7-4ac6-8094-81ebc4bbf2bc">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+employee:
+{
+	emp_name:payload.emp.firstname ++" "++ payload.emp.lastname,
+	emp_dob:payload.emp.dob,
+	emp_status:payload.emp.satus
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sftp:write doc:name="Write" doc:id="dce1d056-a297-4235-9b1e-ef1641626364" config-ref="SFTP_Config" path="OUTBOUND/emp_json" createParentDirectories="false"/>
+		<logger level="INFO" doc:name="Logger" doc:id="adfec4e8-dd13-4707-8725-82ea9ee997c7" message="writen data is:  #[payload]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="0c8c9e30-3428-4591-979d-135fad9186a0" name="sftp_connectorSub_Flow"/>
+	</flow>
+	<sub-flow name="sftp_connectorSub_Flow" doc:id="aae65c91-72ed-415a-bc8d-dd2c38919dbb" >
+		<sftp:create-directory doc:name="Create directory" doc:id="a56ce12c-1169-4245-a1e2-98a79302038f" config-ref="SFTP_Config" directoryPath="OUTBOUND\create directory"/>
+		<sftp:move doc:name="Move" doc:id="9733e4dd-f853-4d1a-bf22-37d197897842" config-ref="SFTP_Config" sourcePath="OUTBOUND\emp_json" targetPath="OUTBOUND\create directory" createParentDirectories="false"/>
+		<sftp:rename doc:name="Rename" doc:id="84088faf-35a8-4fb4-aaa0-817d9846e19a" config-ref="SFTP_Config1" path="OUTBOUND\create directory\emp_json" to="emp_rename_json"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="99a9d902-0b4c-45b4-b94e-d5b533f0e0c7" />
+		<logger level="INFO" doc:name="Logger" doc:id="187d2964-084e-4b22-a524-0339a663f26f" message="payload is :#[payload]"/>
+		<ftp:write doc:name="Write" doc:id="3ae058cc-2ab6-470a-be03-578d4330a7d6" config-ref="FTP_Config" path="OUTBOUND\SFTP\emp_ftp.json" createParentDirectories="false"/>
+	</sub-flow>
+</mule>

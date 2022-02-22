@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a483fb94-4866-4dee-820a-3b29250f13c4" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="34129f9d-7d9d-4859-ab55-15b2321f119d" >
+		<db:my-sql-connection host="localhost" port="3306" user="mule" password="soft@123" database="customers_info" />
+	</db:config>
+	<flow name="db_connector01Flow" doc:id="7fcbb685-6131-43fa-b26c-841cf73227ee" >
+		<http:listener doc:name="Listener" doc:id="7b7b54e5-12ed-4791-8063-31116984351b" config-ref="HTTP_Listener_config" path="/de_insert_dynamic"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="ac929a43-94bb-422d-b397-10b175c15c24" />
+		<db:insert doc:name="Insert" doc:id="6da566f8-43ae-4835-bb54-1eb14a468b73" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into customer (cust_id, cust_fname, cust_lname,cust_address, cust_phone)
+values (:cust_id, :cust_fname, :cust_lname, :cust_address, :cust_phone);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	cust_id:attributes.queryParams.cust_id,
+	cust_fname:attributes.queryParams.cust_fname,
+	cust_lname:attributes.queryParams.cust_lname,
+	cust_address:attributes.queryParams.cust_address,
+	cust_phone:attributes.queryParams.cust_phone
+}]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" doc:name="Logger" doc:id="58a800e9-6641-44ca-a08f-c0abb72fec20" message="one row is inserted"/>
+		<db:select doc:name="Select" doc:id="ed01877a-ebda-4aad-815a-c1b53545f1c1" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from customer where cust_id = :cust_id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	cust_id:attributes.queryParams.cust_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="04e3c9c8-913d-4706-a0ff-e940cd855f56" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="88ff4686-25be-41be-995e-1ecb771726b2" message="select inserted new row: #[payload]"/>
+	</flow>
+</mule>
